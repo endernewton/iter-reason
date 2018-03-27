@@ -1,0 +1,4 @@
+EXP_DIR: mobile
+TRAIN:
+  DOUBLE_BIAS: False
+  SNAPSHOT_PREFIX: mobile

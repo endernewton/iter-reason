@@ -1,0 +1,4 @@
+EXP_DIR: res50_attend
+TRAIN:
+  DOUBLE_BIAS: False
+  SNAPSHOT_PREFIX: res50_attend

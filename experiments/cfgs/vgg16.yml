@@ -1,0 +1,3 @@
+EXP_DIR: vgg16
+TRAIN:
+  SNAPSHOT_PREFIX: vgg16

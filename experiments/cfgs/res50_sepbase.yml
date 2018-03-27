@@ -1,0 +1,7 @@
+EXP_DIR: res50_sepbase
+TRAIN:
+  DOUBLE_BIAS: False
+  SNAPSHOT_PREFIX: res50_sepbase
+MEM:
+  LOSS: sep
+  COMB: "no"
