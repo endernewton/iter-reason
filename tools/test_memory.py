@@ -5,23 +5,15 @@ from __future__ import print_function
 import _init_paths
 from model.test import test_net
 from model.config import cfg, cfg_from_file, cfg_from_list
+import nets.base_memory as base_memory
+import nets.attend_memory as attend_memory
 from datasets.factory import get_imdb
 import argparse
 import pprint
 import time, os, sys
 
 import tensorflow as tf
-import nets.seg_memory as seg_memory
-import nets.check_memory as check_memory
-import nets.gcheck_memory as gcheck_memory
 
-import nets.base_memory as base_memory
-import nets.attend_memory as attend_memory
-
-import nets.gbase_memory as gbase_memory
-import nets.gattend_memory as gattend_memory
-
-import nets.comb_memory as comb_memory
 
 def parse_args():
   """
@@ -94,49 +86,10 @@ if __name__ == '__main__':
   
   net_base, net_tag = args.net.split('_')
 
-  # Define the graphs
-  if net_tag in ('gbase','sgbase','gattend','sepgat','comb'):
-    if imdb.name.startswith('ade'):
-      cfg.GRA.W_B = ('IK','iIK','LR','iLR','PF','iPF','PO','iPO','SM')
-      cfg.GRA.W2V_C = 900
-    elif imdb.name.startswith('visual_genome'):
-      cfg.GRA.W_B = ('000_along.r.01_513444', '001_have.v.01_270403',
-                     '002_be.v.01_185338', '003_in.r.01_175449',
-                     '004_wear.v.01_100031', '005_behind.r.01_28694',
-                     '006_about.r.07_21774', '007_next.r.01_17033',
-                     '008_sit.v.01_16717', '009_stand.v.01_13526')
-      cfg.GRA.W2V_C= 300
-    else:
-      cfg.GRA.W_B = ()
-
-    cfg.GRA.LW = len(cfg.GRA.W_B)
-    cfg.GRA.LR = len(cfg.GRA.R_B)
-
-  if 'adeseg' in args.imdb_name:
-    assert net_tag == 'base'
-    memory = seg_memory
-    iter_test = True
-  elif net_tag == 'base' or net_tag == 'sepbase':
+  if net_tag == 'base' or net_tag == 'sepbase':
     memory = base_memory
-    iter_test = True
   elif net_tag == 'attend' or net_tag == 'sepat':
     memory = attend_memory
-    iter_test = False
-  elif net_tag == 'check':
-    memory = check_memory
-    iter_test = False
-  elif net_tag == 'gcheck':
-    memory = gcheck_memory
-    iter_test = False
-  elif net_tag == 'gbase' or net_tag == 'sgbase':
-    memory = gbase_memory
-    iter_test = True
-  elif net_tag == 'gattend' or net_tag == 'sepgat' or net_tag == 'noinv':
-    memory = gattend_memory
-    iter_test = False
-  elif net_tag == 'comb':
-    memory = comb_memory
-    iter_test = False
   else:
     raise NotImplementedError
 
