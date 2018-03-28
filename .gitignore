@@ -2,4 +2,5 @@
 *.egg-info/
 *.DS_Store
 *.so
+*.dropbox.attr
 experiments/logs

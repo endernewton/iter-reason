@@ -4,11 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 __sets = {}
-from datasets.pascal_voc import pascal_voc
 from datasets.coco import coco
-from datasets.vrd import vrd
 from datasets.ade import ade
-from datasets.adeseg import adeseg
 from datasets.visual_genome import visual_genome
 
 import numpy as np
