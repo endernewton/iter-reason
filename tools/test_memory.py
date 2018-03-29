@@ -88,8 +88,10 @@ if __name__ == '__main__':
 
   if net_tag == 'base' or net_tag == 'sepbase':
     memory = base_memory
+    iter_test = True
   elif net_tag == 'attend' or net_tag == 'sepat':
     memory = attend_memory
+    iter_test = False
   else:
     raise NotImplementedError
 
