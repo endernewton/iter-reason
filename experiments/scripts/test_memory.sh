@@ -62,7 +62,7 @@ set -x
 
 for TEST_IMDB in "${TEST_IMDBS[@]}"
 do
-  CUDA_VISIBLE_DEVICES=${GPU_ID} time python ./tools/test_memory.py \
+  CUDA_VISIBLE_DEVICES=${GPU_ID} python ./tools/test_memory.py \
     --imdb ${TEST_IMDB} \
     --model ${NET_FINAL} \
     --cfg experiments/cfgs/${NET}.yml \

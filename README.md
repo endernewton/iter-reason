@@ -3,7 +3,9 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 
 ### Disclaimer
   - This is the authors' implementation of the system described in the paper, not an official Google product.
-  - Right now the available reasoning module is based on convolutions and spatial memory.
+  - Right now:
+    - The available reasoning module is based on convolutions and spatial memory.
+    - Stay tuned with more updates on the graph based reasoning modules.
 
 ### Prerequisites
 
@@ -22,6 +24,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 1. Clone the repository.
   ```Shell
   git clone https://github.com/endernewton/iter-reason.git
+  cd iter-reason
   ```
 
 2. Set up data, here we use ADE20K as an example.
@@ -51,6 +54,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   ```Shell
   cd lib
   make
+  cd ..
   ```
 
 5. Now you are ready to run! For example, to train and test the baseline:
@@ -63,8 +67,8 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   # Examples:
   # train on ADE20K for 320K iterations, reducing learning rate at 280K.
   ./experiments/scripts/train.sh 0 ade 28 32
-  # train on COCO for 640K iterations, reducing at 500K.
-  ./experiments/scripts/train.sh 1 coco 50 64 
+  # train on COCO for 720K iterations, reducing at 500K and 640K.
+  ./experiments/scripts/train.sh 1 coco 50a64 72
   ```
   To train and test the reasoning modules:
   ```Shell

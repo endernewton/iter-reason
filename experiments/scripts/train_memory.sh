@@ -61,7 +61,7 @@ NET_FINAL=output/${NET}/${TRAIN_IMDB}/${EXTRA_ARGS_SLUG}/${NET}_iter_${ITERS}.ck
 set -x
 
 if [ ! -f ${NET_FINAL}.index ]; then
-  CUDA_VISIBLE_DEVICES=${GPU_ID} time python ./tools/trainval_memory.py \
+  CUDA_VISIBLE_DEVICES=${GPU_ID} python ./tools/trainval_memory.py \
     --weight data/imagenet_weights/${NET_BASE}.ckpt \
     --imdb ${TRAIN_IMDB} \
     --imdbval ${VAL_IMDB} \
