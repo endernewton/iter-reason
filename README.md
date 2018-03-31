@@ -75,9 +75,9 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 6. To train and test the reasoning modules (based on ResNet-50):
   ```Shell
   ./experiments/scripts/train_memory.sh [GPU_ID] [DATASET] [MEM] [STEPS] [ITER] 
-  # MEM is the type of reasoning modules to use, for example 
+  # MEM in {local} is the type of reasoning modules to use 
   # Examples:
-  # train on ADE20K on the attention based memory.
+  # train on ADE20K on the local spatial memory.
   ./experiments/scripts/train_memory.sh 0 ade local 28 32
   ```
 
