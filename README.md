@@ -72,13 +72,13 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   ./experiments/scripts/train.sh 1 coco 50a64 72
   ```
 
-6. To train and test the reasoning modules (right now supporting ResNet):
+6. To train and test the reasoning modules (based on ResNet-50):
   ```Shell
   ./experiments/scripts/train_memory.sh [GPU_ID] [DATASET] [MEM] [STEPS] [ITER] 
   # MEM is the type of reasoning modules to use, for example 
   # Examples:
   # train on ADE20K on the attention based memory.
-  ./experiments/scripts/train.sh 0 ade sepat 28 32
+  ./experiments/scripts/train_memory.sh 0 ade local 28 32
   ```
 
 7. Once the training is done, you can test the models separately with `test.sh` and `test_memory.sh`, we also provided a separate set of scripts to test on larger image inputs.

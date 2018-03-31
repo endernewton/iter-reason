@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+import os.path as osp
 from random import shuffle
 import PIL.Image as Image
 import PIL.ImageColor as ImageColor
@@ -38,14 +39,15 @@ STANDARD_COLORS = [
 ]
 
 NUM_COLORS = len(STANDARD_COLORS)
+this_dir = osp.dirname(__file__)
 
 try:
-  FONT = ImageFont.truetype('/nfs.yoda/xinleic/Inf/Code/rel-cls/data/helveticaneue.ttf', 12)
+  FONT = ImageFont.truetype(osp.join(this_dir, '..', '..', 'data', 'helveticaneue.ttf'), 12)
 except IOError:
   FONT = ImageFont.load_default()
 
 try:
-  FONT_BIG = ImageFont.truetype('/nfs.yoda/xinleic/Inf/Code/rel-cls/data/helveticaneue.ttf', 24)
+  FONT_BIG = ImageFont.truetype(osp.join(this_dir, '..', '..', 'data', 'helveticaneue.ttf'), 24)
 except IOError:
   FONT_BIG = ImageFont.load_default()
 

@@ -6,7 +6,6 @@ import _init_paths
 from model.train_val import get_training_roidb
 from model.train_val_memory import train_net
 from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir
-import nets.base_memory as base_memory
 import nets.attend_memory as attend_memory
 from datasets.factory import get_imdb
 import datasets.imdb
@@ -117,9 +116,7 @@ if __name__ == '__main__':
 
   net_base, net_tag = args.net.split('_')
 
-  if net_tag == 'base' or net_tag == 'sepbase':
-    memory = base_memory
-  elif net_tag == 'attend' or net_tag == 'sepat':
+  if net_tag == 'local':
     memory = attend_memory
   else:
     raise NotImplementedError

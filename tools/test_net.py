@@ -84,32 +84,18 @@ if __name__ == '__main__':
   # init session
   sess = tf.Session(config=tfconfig)
   # load network
-  if 'adeseg' in args.imdb_name:
-    if args.net == 'vgg16':
-      net = vgg16_segment()
-    elif args.net == 'res50':
-      net = resnetv1_segment(num_layers=50)
-    elif args.net == 'res101':
-      net = resnetv1_segment(num_layers=101)
-    elif args.net == 'res152':
-      net = resnetv1_segment(num_layers=152)
-    elif args.net == 'mobile':
-      net = mobilenetv1_segment()
-    else:
-      raise NotImplementedError
+  if args.net == 'vgg16':
+    net = vgg16()
+  elif args.net == 'res50':
+    net = resnetv1(num_layers=50)
+  elif args.net == 'res101':
+    net = resnetv1(num_layers=101)
+  elif args.net == 'res152':
+    net = resnetv1(num_layers=152)
+  elif args.net == 'mobile':
+    net = mobilenetv1()
   else:
-    if args.net == 'vgg16':
-      net = vgg16()
-    elif args.net == 'res50':
-      net = resnetv1(num_layers=50)
-    elif args.net == 'res101':
-      net = resnetv1(num_layers=101)
-    elif args.net == 'res152':
-      net = resnetv1(num_layers=152)
-    elif args.net == 'mobile':
-      net = mobilenetv1()
-    else:
-      raise NotImplementedError
+    raise NotImplementedError
 
   # load model
   net.create_architecture("TEST", imdb.num_classes, tag='default')

@@ -114,33 +114,19 @@ if __name__ == '__main__':
   print('{:d} validation roidb entries'.format(len(valroidb)))
   cfg.TRAIN.USE_FLIPPED = orgflip
 
-  # load network, separate the segmentation one
-  if 'adeseg' in args.imdb_name:
-    if args.net == 'vgg16':
-      net = vgg16_segment()
-    elif args.net == 'res50':
-      net = resnetv1_segment(num_layers=50)
-    elif args.net == 'res101':
-      net = resnetv1_segment(num_layers=101)
-    elif args.net == 'res152':
-      net = resnetv1_segment(num_layers=152)
-    elif args.net == 'mobile':
-      net = mobilenetv1_segment()
-    else:
-      raise NotImplementedError
+  # load network
+  if args.net == 'vgg16':
+    net = vgg16()
+  elif args.net == 'res50':
+    net = resnetv1(num_layers=50)
+  elif args.net == 'res101':
+    net = resnetv1(num_layers=101)
+  elif args.net == 'res152':
+    net = resnetv1(num_layers=152)
+  elif args.net == 'mobile':
+    net = mobilenetv1()
   else:
-    if args.net == 'vgg16':
-      net = vgg16()
-    elif args.net == 'res50':
-      net = resnetv1(num_layers=50)
-    elif args.net == 'res101':
-      net = resnetv1(num_layers=101)
-    elif args.net == 'res152':
-      net = resnetv1(num_layers=152)
-    elif args.net == 'mobile':
-      net = mobilenetv1()
-    else:
-      raise NotImplementedError
+    raise NotImplementedError
     
   train_net(net, imdb, roidb, valroidb, output_dir, tb_dir,
             pretrained_model=args.weight,
