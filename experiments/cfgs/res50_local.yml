@@ -1,0 +1,6 @@
+EXP_DIR: res50_local
+TRAIN:
+  DOUBLE_BIAS: False
+  SNAPSHOT_PREFIX: res50_local
+MEM:
+  ITER: 3

@@ -1,8 +1,0 @@
-EXP_DIR: res50_sepat
-TRAIN:
-  DOUBLE_BIAS: False
-  SNAPSHOT_PREFIX: res50_sepat
-MEM:
-  LOSS: weight
-  COMB: "no"
-  B: .5

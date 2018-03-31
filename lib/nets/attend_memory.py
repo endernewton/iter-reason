@@ -47,7 +47,7 @@ class AttendMemory(BaseMemory):
     # also visualize the predictions of the network
     if self._gt_image is None:
       self._add_gt_image()
-    if iter == 0 or cfg.MEM.LOSS != 'weight':
+    if iter == 0:
       image = tf.py_func(draw_predicted_boxes_attend,
                          [self._gt_image,
                          self._predictions['cls_prob'][iter],
@@ -77,8 +77,6 @@ class AttendMemory(BaseMemory):
 
   def _confidence_init(self, fc7, is_training):
     initializer = tf.random_normal_initializer(mean=0.0, stddev=0.01)
-    if cfg.MEM.SAT:
-      fc7 = tf.stop_gradient(fc7,name="sat_init")
     confid = slim.fully_connected(fc7, 1, 
                                  weights_initializer=initializer,
                                  trainable=is_training,
@@ -91,45 +89,23 @@ class AttendMemory(BaseMemory):
   def _confidence_iter(self, mem_fc7, is_training, name, iter):
     initializer = tf.random_normal_initializer(mean=0.0, stddev=cfg.MEM.C_STD)
     with tf.variable_scope(name):
-      if cfg.MEM.SAT:
-        mem_fc7 = tf.stop_gradient(mem_fc7,name="sat_iter%02d"%iter)
-      if cfg.MEM.CC == 'mem':
-        confid_mem = slim.fully_connected(mem_fc7, 1, 
-                                          weights_initializer=initializer,
-                                          trainable=is_training,
-                                          activation_fn=None,
-                                          biases_initializer=None,
-                                          scope="confid_mem")
-        self._predictions['confid'].append(confid_mem)
-        self._score_summaries[iter].append(confid_mem)
-      elif cfg.MEM.CC == 'no':
-        confid_mem = slim.fully_connected(mem_fc7, 1, 
-                                          weights_initializer=initializer,
-                                          trainable=is_training,
-                                          activation_fn=None,
-                                          biases_initializer=tf.constant_initializer(0.0),
-                                          scope="confid_mem")
-        if iter == 0:
-          self._predictions['confid'].append(self._base_confidence)
-          self._score_summaries[iter].append(self._base_confidence)
-        else:
-          self._predictions['confid'].append(confid_mem)
-          self._score_summaries[iter].append(confid_mem)
-      else:
-        raise NotImplementedError
+      confid_mem = slim.fully_connected(mem_fc7, 1, 
+                                        weights_initializer=initializer,
+                                        trainable=is_training,
+                                        activation_fn=None,
+                                        biases_initializer=None,
+                                        scope="confid_mem")
+      self._predictions['confid'].append(confid_mem)
+      self._score_summaries[iter].append(confid_mem)
 
   def _aggregate_pred(self, name):
     with tf.variable_scope(name):
       comb_confid = tf.stack(self._predictions['confid'], axis=2, name='comb_confid')
       comb_attend = tf.nn.softmax(comb_confid, dim=2, name='comb_attend')
       self._predictions['confid_prob'] = tf.unstack(comb_attend, axis=2, name='unstack_attend')
-      if cfg.MEM.LOSS == 'avg':
-        comb_score = tf.stack(self._predictions["cls_score"], axis=2, name='comb_score')
-      elif cfg.MEM.LOSS == 'sep' or cfg.MEM.LOSS == 'weight':
-        comb_score = tf.stop_gradient(tf.stack(self._predictions["cls_score"], axis=2, name='comb_score'),
-                                      name="comb_score_nb")
-      else:
-        raise NotImplementedError
+      comb_score = tf.stop_gradient(tf.stack(self._predictions["cls_score"], 
+                                    axis=2, name='comb_score'),
+                                    name="comb_score_nb")
       cls_score = tf.reduce_sum(tf.multiply(comb_score, comb_attend, name='weighted_cls_score'), 
                                 axis=2, name='attend_cls_score')
       cls_prob = tf.nn.softmax(cls_score, name="cls_prob")
@@ -163,8 +139,6 @@ class AttendMemory(BaseMemory):
     with tf.variable_scope(self._scope, self._scope):
       # region classification
       cls_score_conv, cls_prob_conv = self._cls_init(fc7, is_training)
-      if cfg.MEM.CC == 'no':
-        self._confidence_init(fc7, is_training)
 
     return cls_score_conv, pool5_nb, \
            rois, batch_ids, inv_rois, inv_batch_ids
@@ -212,7 +186,7 @@ class AttendMemory(BaseMemory):
                                 rois, batch_ids, inv_rois, inv_batch_ids, 
                                 iter)
 
-        if is_training and cfg.MEM.LOSS == 'weight':
+        if is_training:
           self._update_weights(self._labels, cls_prob, iter)
 
       if iter == 0:
@@ -226,8 +200,7 @@ class AttendMemory(BaseMemory):
   def _add_memory_losses(self, name):
     cross_entropy = []
     assert len(self._predictions["cls_score"]) == cfg.MEM.ITER
-    if cfg.MEM.LOSS == 'weight':
-      assert len(self._predictions["weights"]) == cfg.MEM.ITER - 1
+    assert len(self._predictions["weights"]) == cfg.MEM.ITER - 1
     with tf.variable_scope(name):
       # Then add ones for later iterations
       for iter in xrange(cfg.MEM.ITER):
@@ -236,7 +209,7 @@ class AttendMemory(BaseMemory):
         ce_ins = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=cls_score, 
                                                                 labels=self._labels,
                                                                 name="ce_ins_%02d" % iter)
-        if iter > 0 and cfg.MEM.LOSS == 'weight':
+        if iter > 0:
           weight = self._predictions["weights"][iter-1]
           ce = tf.reduce_sum(tf.multiply(weight, ce_ins, name="weight_%02d" % iter), name="ce_%02d" % iter)
         else:
@@ -250,18 +223,12 @@ class AttendMemory(BaseMemory):
                                                                                name="ce_ins"), name="ce")
       self._losses['cross_entropy_final'] = ce_final
  
-      if cfg.MEM.LOSS == 'avg':
-        # Just use a single one out
-        self._losses['cross_entropy'] = self._losses['cross_entropy_final']
-      elif cfg.MEM.LOSS == 'sep' or cfg.MEM.LOSS == 'weight':
-        ce_rest = tf.stack(cross_entropy[1:], name="cross_entropy_rest")
-        self._losses['cross_entropy_image'] = cross_entropy[0]
-        self._losses['cross_entropy_memory'] = tf.reduce_mean(ce_rest, name='cross_entropy')
-        self._losses['cross_entropy'] = self._losses['cross_entropy_image'] \
-                                      + cfg.MEM.W * self._losses['cross_entropy_memory'] \
-                                      + cfg.MEM.WF * self._losses['cross_entropy_final']
-      else:
-        raise NotImplementedError
+      ce_rest = tf.stack(cross_entropy[1:], name="cross_entropy_rest")
+      self._losses['cross_entropy_image'] = cross_entropy[0]
+      self._losses['cross_entropy_memory'] = tf.reduce_mean(ce_rest, name='cross_entropy')
+      self._losses['cross_entropy'] = self._losses['cross_entropy_image'] \
+                                    + cfg.MEM.WEIGHT * self._losses['cross_entropy_memory'] \
+                                    + cfg.MEM.WEIGHT_FINAL * self._losses['cross_entropy_final']
 
       loss = self._losses['cross_entropy']
       regularization_loss = tf.add_n(tf.losses.get_regularization_losses(), 'regu')

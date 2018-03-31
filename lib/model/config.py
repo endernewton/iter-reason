@@ -57,43 +57,17 @@ __C.MEM.CT_FCONV = 3
 # Input feature
 __C.MEM.IN_L = 2
 __C.MEM.IN_CONV = 3
-# Input the total scores or not
-__C.MEM.IN_A = False
 
 # Memory final fc layer channels
 __C.MEM.FC_C = 4096
 __C.MEM.FC_L = 2
 
-# Clipping the gradients
-__C.MEM.CLIP = 0.
-
-# How to take care of the loss
-__C.MEM.LOSS = 'avg'
-
-# Input memory
-__C.MEM.INPUT = 'combs'
-
-# Update memory
-__C.MEM.U = 'relu'
-__C.MEM.UA = 'avg'
-
-# For segmentation, how to crop the memory
-__C.MEM.SEG_MEM = False
-
 # The weight for the memory based prediction
-__C.MEM.W = 1.
+__C.MEM.WEIGHT = 1.
 # Final supervision weight
-__C.MEM.WF = 1.
-
-__C.MEM.B = 1.
-
-# Combining methods for prediction and confidence
-__C.MEM.COMB = 'base'
-# Combining confidences
-__C.MEM.CC = 'mem'
-
-# Stop grediant for attention
-__C.MEM.SAT = False
+__C.MEM.WEIGHT_FINAL = 1.
+# The threshold to control the entropy of the distribution
+__C.MEM.BETA = .5
 
 #
 # Training options

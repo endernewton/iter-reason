@@ -197,21 +197,11 @@ class BaseMemory(Network):
 
   def _comb_conv_mem(self, cls_score_conv, cls_score_mem, name, iter):
     with tf.variable_scope(name):
-      if cfg.MEM.COMB == 'base':
-        cls_score = tf.add(cls_score_conv, cls_score_mem, "cls_score")
-      elif cfg.MEM.COMB == 'stop':
-        if iter == 0:
-          cls_score = cls_score_conv
-          self.cls_score_conv_nb = tf.stop_gradient(cls_score_conv, name="cls_score_conv_nb")
-        else:
-          cls_score = tf.add(self.cls_score_conv_nb, cls_score_mem, "cls_score")
-      elif cfg.MEM.COMB == 'no':
-        if iter == 0:
-          cls_score = cls_score_conv
-        else:
-          cls_score = cls_score_mem
+      # take the output directly from each iteration
+      if iter == 0:
+        cls_score = cls_score_conv
       else:
-        raise NotImplementedError
+        cls_score = cls_score_mem
       cls_prob = tf.nn.softmax(cls_score, name="cls_prob")
       cls_pred = tf.argmax(cls_score, axis=1, name="cls_pred")
 
@@ -386,14 +376,7 @@ class BaseMemory(Network):
                               biases_initializer=None,
                               scope="input_m")
         # Non-linear activation
-        if cfg.MEM.U == 'relu':
-          pool5_new = tf.nn.relu(p_input + m_input, name="pool5_new")
-        elif cfg.MEM.U == 'relu6':
-          pool5_new = tf.nn.relu6(p_input + m_input, name="pool5_new")
-        elif cfg.MEM.U == 'tanh':
-          pool5_new = tf.nn.tanh(p_input + m_input, name="pool5_new")
-        else:
-          raise NotImplementedError
+        pool5_new = tf.nn.relu(p_input + m_input, name="pool5_new")
         # get the update gate, the portion that is taken to update the new memory
         update_gate = tf.sigmoid(p_update + m_update, name="update_gate")
         # the update is done in a difference manner
@@ -413,20 +396,8 @@ class BaseMemory(Network):
   def _input_module(self, pool5_nb, 
                     cls_score_nb, cls_prob_nb, cls_pred_nb, 
                     is_training, iter):
-    if cfg.MEM.INPUT == 'comb':
-      pool5_comb = self._bottomtop(pool5_nb, cls_prob_nb, is_training, "bottom_top", iter)
-      pool5_input = self._input(pool5_comb, is_training, "pool5_input", iter)
-    elif cfg.MEM.INPUT == 'combs':
-      pool5_comb = self._bottomtop(pool5_nb, cls_score_nb, is_training, "bottom_top", iter)
-      pool5_input = self._input(pool5_comb, is_training, "pool5_input", iter)
-    elif cfg.MEM.INPUT == 'bottom':
-      pool5_input = self._bottom(pool5_nb, is_training, "bottom", iter)
-    elif cfg.MEM.INPUT == 'prob':
-      pool5_input = self._topprob(cls_prob_nb, is_training, "topprob", iter)
-    elif cfg.MEM.INPUT == 'pred':
-      pool5_input = self._toppred(cls_pred_nb, is_training, "toppred", iter)
-    else:
-      raise NotImplementedError
+    pool5_comb = self._bottomtop(pool5_nb, cls_score_nb, is_training, "bottom_top", iter)
+    pool5_input = self._input(pool5_comb, is_training, "pool5_input", iter)
 
     return pool5_input
 
@@ -480,14 +451,9 @@ class BaseMemory(Network):
     mem_update = self._mem_update(pool5_mem, pool5_input, is_training, "mem_update", iter) 
     mem_diff, _ = self._inv_crops(mem_update, inv_rois, inv_batch_ids, "inv_crop")
     self._score_summaries[iter].append(mem_diff)
-    if cfg.MEM.UA == 'sum':
-      mem_mult = tf.multiply(mem, self._count_matrix, "mult")
-      mem = tf.add(mem_mult, mem_diff, name="add")
-    elif cfg.MEM.UA == 'avg':
-      mem_div = tf.div(mem_diff, self._count_matrix_eps, name="div")
-      mem = tf.add(mem, mem_div, name="add")
-    else:
-      raise NotImplementedError
+    # Update the memory
+    mem_div = tf.div(mem_diff, self._count_matrix_eps, name="div")
+    mem = tf.add(mem, mem_div, name="add")
     self._score_summaries[iter].append(mem)
 
     return mem
@@ -535,17 +501,11 @@ class BaseMemory(Network):
                                                                            labels=label))
         cross_entropy.append(ce)
 
-      if cfg.MEM.LOSS == 'avg':
-        cross_entropy = tf.stack(cross_entropy, name="cross_entropy")
-        self._losses['cross_entropy'] = tf.reduce_mean(cross_entropy, name='cross_entropy')
-      elif cfg.MEM.LOSS == 'sep':
-        ce_rest = tf.stack(cross_entropy[1:], name="cross_entropy_rest")
-        self._losses['cross_entropy_image'] = cross_entropy[0]
-        self._losses['cross_entropy_memory'] = tf.reduce_mean(ce_rest, name='cross_entropy')
-        self._losses['cross_entropy'] = self._losses['cross_entropy_image'] \
-                                      + cfg.MEM.W * self._losses['cross_entropy_memory']
-      else:
-        raise NotImplementedError
+      ce_rest = tf.stack(cross_entropy[1:], name="cross_entropy_rest")
+      self._losses['cross_entropy_image'] = cross_entropy[0]
+      self._losses['cross_entropy_memory'] = tf.reduce_mean(ce_rest, name='cross_entropy')
+      self._losses['cross_entropy'] = self._losses['cross_entropy_image'] \
+                                    + cfg.MEM.WEIGHT * self._losses['cross_entropy_memory']
 
       loss = self._losses['cross_entropy']
       regularization_loss = tf.add_n(tf.losses.get_regularization_losses(), 'regu')

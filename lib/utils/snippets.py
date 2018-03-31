@@ -29,25 +29,6 @@ def compute_target(memory_size, gt_boxes, feat_stride):
 
   return rois, batch_ids, roi_overlaps, labels
 
-def compute_patch(im_info, gt_boxes):
-  factor_h = im_info[0] - 1.
-  factor_w = im_info[1] - 1.
-  num_gt = gt_boxes.shape[0]
-
-  x1 = gt_boxes[:, [0]] / factor_w
-  y1 = gt_boxes[:, [1]] / factor_h
-  x2 = gt_boxes[:, [2]] / factor_w
-  y2 = gt_boxes[:, [3]] / factor_h
-
-  im_rois = np.hstack((y1, x1, y2, x2))
-  im_batch_ids = np.zeros((num_gt), dtype=np.int32)
-
-  return im_rois, im_batch_ids
-
-def normalize(graph):
-  norm = 1. / np.maximum(np.sum(graph, axis=1, keepdims=True), cfg.EPS)
-  return graph * norm
-
 # Also return the reverse index of rois
 def compute_target_memory(memory_size, gt_boxes, feat_stride):
   minus_h = memory_size[0] - 1.
@@ -82,14 +63,15 @@ def compute_target_memory(memory_size, gt_boxes, feat_stride):
 
   return rois, batch_ids, labels, inv_rois, inv_batch_ids
 
+# Update weights for the target
 def update_weights(labels, cls_prob):
   num_gt = labels.shape[0]
   index = np.arange(num_gt)
   cls_score = cls_prob[index, labels]
-  big_ones = cls_score >= 1. - cfg.MEM.B
+  big_ones = cls_score >= 1. - cfg.MEM.BETA
   # Focus on the hard examples
   weights = 1. - cls_score
-  weights[big_ones] = cfg.MEM.B
+  weights[big_ones] = cfg.MEM.BETA
   weights /= np.maximum(np.sum(weights), cfg.EPS)
   
   return weights

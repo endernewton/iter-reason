@@ -5,6 +5,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   - This is the authors' implementation of the system described in the paper, not an official Google product.
   - Right now:
     - The available reasoning module is based on convolutions and spatial memory.
+    - For simplicity, the released code uses the tensorflow default `crop_and_resize` operation, rather than the customized one reported in the paper (right now I find the default one is actually better by ~1%).
     - Stay tuned with more updates on the graph based reasoning modules.
 
 ### Prerequisites
@@ -41,7 +42,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   cd ../..
   ```
 
-3. Set up pre-trained ImageNet models. This is similarly done in [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn). Here by default we use Resnet-50 as the backbone:
+3. Set up pre-trained ImageNet models. This is similarly done in [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn). Here by default we use ResNet-50 as the backbone:
   ```Shell
    cd data/imagenet_weights
    wget -v http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz
@@ -50,7 +51,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
    cd ../..
    ```
 
-4. Compile the library.
+4. Compile the library (for computing bounding box overlaps).
   ```Shell
   cd lib
   make
@@ -59,9 +60,10 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 
 5. Now you are ready to run! For example, to train and test the baseline:
   ```Shell
-  ./experiments/scripts/train.sh [GPU_ID] [DATASET] [STEPS] [ITER] 
+  ./experiments/scripts/train.sh [GPU_ID] [DATASET] [NET] [STEPS] [ITER] 
   # GPU_ID is the GPU you want to test on
   # DATASET in {ade, coco, vg} is the dataset to train/test on, defined in the script
+  # NET in {res50, res101} is the backbone networks to choose from
   # STEPS (x10K) is the number of iterations before it reduces learning rate, can support multiple steps separated by character 'a'
   # ITER (x10K) is the total number of iterations to run
   # Examples:
@@ -70,7 +72,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   # train on COCO for 720K iterations, reducing at 500K and 640K.
   ./experiments/scripts/train.sh 1 coco 50a64 72
   ```
-  To train and test the reasoning modules:
+  To train and test the reasoning modules (right now supporting ResNet):
   ```Shell
   ./experiments/scripts/train_memory.sh [GPU_ID] [DATASET] [MEM] [STEPS] [ITER] 
   # MEM is the type of reasoning modules to use, for example 
@@ -78,6 +80,8 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   # train on ADE20K on the attention based memory.
   ./experiments/scripts/train.sh 0 ade sepat 28 32
   ```
+  Once the training is done, you can test the models separately with `test.sh` and `test_memory.sh`, we also provided a separate set of scripts to test on larger image inputs.
+
 
 ### References
 

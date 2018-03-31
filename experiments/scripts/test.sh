@@ -4,14 +4,14 @@ set -x
 set -e
 
 export PYTHONUNBUFFERED="True"
-NET=res50
 
 GPU_ID=$1
 DATASET=$2
+NET=$3
 
 OIFS=$IFS
 IFS='a'
-STEP="$3"
+STEP="$4"
 STEPSIZE="["
 for i in $STEP; do
   STEPSIZE=${STEPSIZE}"${i}0000,"
@@ -19,11 +19,11 @@ done
 STEPSIZE=${STEPSIZE}"]"
 IFS=$OIFS
 
-ITERS=${4}0000
+ITERS=${5}0000
 
 array=( $@ )
 len=${#array[@]}
-EXTRA_ARGS=${array[@]:4:$len}
+EXTRA_ARGS=${array[@]:5:$len}
 EXTRA_ARGS_SLUG=${EXTRA_ARGS// /_}
 
 case ${DATASET} in
@@ -46,9 +46,9 @@ case ${DATASET} in
 esac
 
 if [[ ! -z  ${EXTRA_ARGS_SLUG}  ]]; then
-    EXTRA_ARGS_SLUG=${EXTRA_ARGS_SLUG}_${3}_${4}
+    EXTRA_ARGS_SLUG=${EXTRA_ARGS_SLUG}_${4}_${5}
 else
-    EXTRA_ARGS_SLUG=${3}_${4}
+    EXTRA_ARGS_SLUG=${4}_${5}
 fi
 
 LOG="experiments/logs/test_${NET}_${TRAIN_IMDB}_${EXTRA_ARGS_SLUG}.txt.`date +'%Y-%m-%d_%H-%M-%S'`"
