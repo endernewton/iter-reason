@@ -5,8 +5,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   - This is the authors' implementation of the system described in the paper, not an official Google product.
   - Right now:
     - The available reasoning module is based on convolutions and spatial memory.
-    - For simplicity, the released code uses the tensorflow default `crop_and_resize` operation, rather than the customized one reported in the paper (right now I find the default one is actually better by ~1%).
-    - Stay tuned with more updates on the graph based reasoning modules.
+    - For simplicity, the released code uses the tensorflow default `crop_and_resize` operation, rather than the customized one reported in the paper (I find the default one is actually better by ~1%).
 
 ### Prerequisites
 
@@ -20,7 +19,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   pip install Cython easydict matplotlib opencv-python Pillow pyyaml scipy
   ```
 
-### Installation
+### Setup and Running
 
 1. Clone the repository.
   ```Shell
@@ -28,7 +27,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   cd iter-reason
   ```
 
-2. Set up data, here we use ADE20K as an example.
+2. Set up data, here we use [ADE20K](http://groups.csail.mit.edu/vision/datasets/ADE20K/) as an example.
   ```Shell
   cd data/ADE
   wget -v http://groups.csail.mit.edu/vision/datasets/ADE20K/ADE20K_2016_07_26.zip
@@ -72,7 +71,8 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   # train on COCO for 720K iterations, reducing at 500K and 640K.
   ./experiments/scripts/train.sh 1 coco 50a64 72
   ```
-  To train and test the reasoning modules (right now supporting ResNet):
+
+6. To train and test the reasoning modules (right now supporting ResNet):
   ```Shell
   ./experiments/scripts/train_memory.sh [GPU_ID] [DATASET] [MEM] [STEPS] [ITER] 
   # MEM is the type of reasoning modules to use, for example 
@@ -80,7 +80,8 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   # train on ADE20K on the attention based memory.
   ./experiments/scripts/train.sh 0 ade sepat 28 32
   ```
-  Once the training is done, you can test the models separately with `test.sh` and `test_memory.sh`, we also provided a separate set of scripts to test on larger image inputs.
+
+7. Once the training is done, you can test the models separately with `test.sh` and `test_memory.sh`, we also provided a separate set of scripts to test on larger image inputs.
 
 
 ### References
