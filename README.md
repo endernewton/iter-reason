@@ -85,6 +85,10 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 
 7. Once the training is done, you can test the models separately with `test.sh` and `test_memory.sh`, we also provided a separate set of scripts to test on larger image inputs.
 
+8. You can use tensorboard to visualize and track the progress, for example:
+  ```Shell
+  tensorboard --logdir=tensorboard/res50/ade_train_5/ --port=7002 &
+  ```
 
 ### References
 
