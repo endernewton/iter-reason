@@ -19,6 +19,15 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   pip install Cython easydict matplotlib opencv-python Pillow pyyaml scipy
   ```
 
+3. For running COCO, the API can be installed globally:
+  ```Shell
+  # any path is okay
+  mkdir ~/install && cd ~/install
+  git clone https://github.com/cocodataset/cocoapi.git cocoapi
+  cd cocoapi/PythonAPI
+  python setup.py install --user
+  ```
+
 ### Setup and Running
 
 1. Clone the repository.
