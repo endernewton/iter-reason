@@ -29,6 +29,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 
 2. Set up data, here we use [ADE20K](http://groups.csail.mit.edu/vision/datasets/ADE20K/) as an example.
   ```Shell
+  mkdir -p data/ADE
   cd data/ADE
   wget -v http://groups.csail.mit.edu/vision/datasets/ADE20K/ADE20K_2016_07_26.zip
   tar -xzvf ADE20K_2016_07_26.zip
@@ -43,6 +44,7 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
 
 3. Set up pre-trained ImageNet models. This is similarly done in [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn). Here by default we use ResNet-50 as the backbone:
   ```Shell
+   mkdir -p data/imagenet_weights
    cd data/imagenet_weights
    wget -v http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz
    tar -xzvf resnet_v1_50_2016_08_28.tar.gz
