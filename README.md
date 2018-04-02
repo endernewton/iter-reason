@@ -79,8 +79,8 @@ By Xinlei Chen, Li-Jia Li, Li Fei-Fei and Abhinav Gupta.
   # Examples:
   # train on ADE20K for 320K iterations, reducing learning rate at 280K.
   ./experiments/scripts/train.sh 0 ade 28 32
-  # train on COCO for 720K iterations, reducing at 500K and 640K.
-  ./experiments/scripts/train.sh 1 coco 50a64 72
+  # train on COCO for 720K iterations, reducing at 320K and 560K.
+  ./experiments/scripts/train.sh 1 coco 32a56 72
   ```
 
 6. To train and test the reasoning modules (based on ResNet-50):
